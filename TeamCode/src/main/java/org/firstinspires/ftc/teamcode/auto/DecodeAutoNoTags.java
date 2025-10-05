@@ -18,7 +18,7 @@ public class DecodeAutoNoTags extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(90));
-        Pose2d parkPose = new Pose2d(5, 5, Math.toRadians(90));
+        Pose2d parkPose = new Pose2d(10, 10, Math.toRadians(90));
 
         telemetry.addData("StartPose", startPose);
         telemetry.update();
@@ -29,12 +29,13 @@ public class DecodeAutoNoTags extends LinearOpMode {
         Action park = drive.actionBuilder(startPose)
                 .strafeTo(parkPose.position) // Vector2d target
                 .build();
-        Actions.runBlocking(park);
+
 
         // Telemetry loop (helpful for debugging final pose drift)
         while (opModeIsActive()) {
             // Update localization each loop
             drive.updatePoseEstimate();
+            Actions.runBlocking(park);
 
             // Read the current estimated pose from the drive's localizer
             Pose2d pose = drive.localizer.getPose();
