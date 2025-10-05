@@ -29,12 +29,13 @@ public class DecodeAutoNoTags extends LinearOpMode {
         Action park = drive.actionBuilder(startPose)
                 .strafeTo(parkPose.position) // Vector2d target
                 .build();
-        Actions.runBlocking(park);
+
 
         // Telemetry loop (helpful for debugging final pose drift)
         while (opModeIsActive()) {
             // Update localization each loop
             drive.updatePoseEstimate();
+            Actions.runBlocking(park);
 
             // Read the current estimated pose from the drive's localizer
             Pose2d pose = drive.localizer.getPose();
