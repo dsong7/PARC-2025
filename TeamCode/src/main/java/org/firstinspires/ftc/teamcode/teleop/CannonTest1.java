@@ -33,7 +33,7 @@ public class CannonTest1 extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         DcMotor Motor1 = hardwareMap.get(DcMotor.class, "Launcher1");
-        DcMotor Motor2 = hardwareMap.get(DcMotor.class, "launcher2");
+        DcMotor Motor2 = hardwareMap.get(DcMotor.class, "Launcher2");
 
         waitForStart();
         while (opModeIsActive()){

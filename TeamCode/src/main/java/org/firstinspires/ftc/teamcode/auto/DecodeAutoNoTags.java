@@ -18,7 +18,7 @@ public class DecodeAutoNoTags extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(90));
-        Pose2d parkPose = new Pose2d(5, 5, Math.toRadians(90));
+        Pose2d parkPose = new Pose2d(10, 10, Math.toRadians(90));
 
         telemetry.addData("StartPose", startPose);
         telemetry.update();
