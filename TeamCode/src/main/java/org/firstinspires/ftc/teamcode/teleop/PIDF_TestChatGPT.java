@@ -95,6 +95,7 @@ public class PIDF_TestChatGPT extends LinearOpMode {
             telemetry.addData("Meas RPM", "%.0f", measRPM);
             telemetry.addData("Error", "%.0f", err);
             telemetry.addData("READY", ready ? "YES" : "no");
+            telemetry.addData("Velocity (t/s)", "Target: %.0f  Measured: %.0f", targetTicksPerSec, measTicksPerSec);
             telemetry.update();
         }
     }
