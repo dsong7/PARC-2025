@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Config
-@TeleOp(name = "MainTeleOp")
+@TeleOp(name = "CannonTest")
 public class CannonTest1 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -37,8 +38,12 @@ public class CannonTest1 extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()){
-            Motor1.setPower(0.5);
-            Motor2.setPower(-0.5);
+            double power = this.gamepad1.left_stick_y;
+            power = Math.min(power, 1);
+            power = Math.max(power, 0);
+
+            Motor1.setPower(power);
+            Motor2.setPower(-power);
         }
 
     }

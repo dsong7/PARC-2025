@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -26,29 +28,28 @@ public class DecodeAutoNoTags extends LinearOpMode {
         // 2. BUILD THE ACTION
         // Build your action sequence here, BEFORE the match starts.
         Action park = drive.actionBuilder(startPose)
-                // PROBLEM: .strafeTo() only moves to a position without turning.
-                // SOLUTION: Use .splineTo() to move to the desired position AND heading.
-                .splineTo(parkPose.position, parkPose.heading)
+                .splineTo(new Vector2d(10,10), parkPose.heading)
                 .build();
 
 
         telemetry.addData("Initialization Complete", "Ready to start!");
         telemetry.update();
-
         waitForStart();
-        if (isStopRequested()) return;
 
 
+        Actions.runBlocking(park);
         // 3. EXECUTE THE ACTION
         // Run the entire 'park' action sequence once.
         // Actions.runBlocking() will execute the whole path and wait until it's done.
-        Actions.runBlocking(park);
+
+
 
 
         // 4. (OPTIONAL) TELEMETRY LOOP
         // After the action is done, you can use a loop to monitor the robot's final position.
         // This is useful for debugging pose drift.
         while (opModeIsActive()) {
+
             Pose2d currentPose = drive.localizer.getPose(); // RoadRunner automatically updates 'drive.pose'
 
             telemetry.addLine("--- Autonomous Complete ---");
@@ -58,7 +59,9 @@ public class DecodeAutoNoTags extends LinearOpMode {
             telemetry.update();
 
             // Yields the CPU thread to prevent the app from crashing.
-            idle();
+
         }
+
+
     }
 }
