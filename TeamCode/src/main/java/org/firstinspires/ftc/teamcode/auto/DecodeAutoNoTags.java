@@ -34,6 +34,7 @@ public class DecodeAutoNoTags extends LinearOpMode {
 
         telemetry.addData("Initialization Complete", "Ready to start!");
         telemetry.update();
+
         waitForStart();
 
 

@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode.TeleOp;
+package org.firstinspires.ftc.teamcode.teleop;
+
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,7 +13,7 @@ public class PIDF_TestChatGPT extends LinearOpMode {
 
     // === UPDATE THESE FOR YOUR HARDWARE ===
     // 28 counts per motor rev, hub reports x4 → 112 ticks per *motor* rev (most FTC motors)
-    static final double TICKS_PER_MOTOR_REV = 112.0;
+    static final double TICKS_PER_MOTOR_REV = 28.0;
     // If your encoder is on the flywheel shaft after gearing, set GEAR_RATIO accordingly.
     // Example: motor:flywheel = 1:3 (geared up 3x) → encoder still on motor → GEAR_RATIO = 1.0
     // If encoder is on the flywheel shaft itself, set GEAR_RATIO to the actual reduction (e.g., 0.333).
@@ -19,12 +21,12 @@ public class PIDF_TestChatGPT extends LinearOpMode {
     static final double TICKS_PER_OUTPUT_REV = TICKS_PER_MOTOR_REV * GEAR_RATIO;
 
     // Targets you can toggle (short vs long shot)
-    double targetRPM = 4200;         // default hold speed
-    final double closeShotRPM = 4200;
-    final double longShotRPM  = 6000;
+    double targetRPM = 250;         // default hold speed
+    final double closeShotRPM = 500;
+    final double longShotRPM  = 1000;
 
     // PIDF (we’ll compute kF from assumed max and tune kP live)
-    double kP = 0.12, kI = 0.00, kD = 0.00, kF = 0.0;
+    double kP = 0.12, kI = 0.10, kD = 0.10, kF = 0.0;
     final double assumedMaxRPM = 6000.0; // flywheel free speed at the shaft with the encoder
 
     // “ready” window to allow firing
@@ -33,16 +35,24 @@ public class PIDF_TestChatGPT extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        DcMotorEx outtake = hardwareMap.get(DcMotorEx.class, "outtake");
-        outtake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        outtake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // flywheels prefer FLOAT
+        DcMotorEx outtake1 = hardwareMap.get(DcMotorEx.class, "Launcher1");
+        outtake1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtake1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtake1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+        DcMotorEx outtake2 = hardwareMap.get(DcMotorEx.class, "Launcher2");
+        outtake2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtake2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtake2.setDirection(REVERSE);
+        outtake2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);// flywheels prefer FLOAT
 
         // Initial kF: REV convention (ticks/sec domain)
         double maxTicksPerSec = (assumedMaxRPM * TICKS_PER_OUTPUT_REV) / 60.0;
         kF = 32767.0 / maxTicksPerSec;
 
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+        outtake1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(kP, kI, kD, kF));
+        outtake2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
                 new PIDFCoefficients(kP, kI, kD, kF));
 
         telemetry.addLine("Controls:");
@@ -63,24 +73,28 @@ public class PIDF_TestChatGPT extends LinearOpMode {
 
             // Hold enable/disable
             if (gamepad1.right_bumper) holding = true;
-            if (gamepad1.left_bumper)  { holding = false; outtake.setPower(0); }
+            if (gamepad1.left_bumper)  { holding = false; outtake1.setPower(0); outtake2.setPower(0);}
 
             // Live tuning
-            if (gamepad1.y) { kP += 0.01; applyPIDF(outtake, kP, kI, kD, kF); sleep(100); }
-            if (gamepad1.a) { kP = Math.max(0, kP - 0.01); applyPIDF(outtake, kP, kI, kD, kF); sleep(100); }
-            if (gamepad1.dpad_right) { kF += 0.0005; applyPIDF(outtake, kP, kI, kD, kF); sleep(100); }
-            if (gamepad1.dpad_left)  { kF = Math.max(0, kF - 0.0005); applyPIDF(outtake, kP, kI, kD, kF); sleep(100); }
+            if (gamepad1.y) { kP += 0.01; applyPIDF(outtake1, kP, kI, kD, kF); applyPIDF(outtake2, kP, kI, kD, kF); sleep(100); }
+            if (gamepad1.a) { kP = Math.max(0, kP - 0.01); applyPIDF(outtake1, kP, kI, kD, kF); applyPIDF(outtake2, kP, kI, kD, kF); sleep(100); }
+            if (gamepad1.dpad_right) { kF += 0.0005; applyPIDF(outtake1, kP, kI, kD, kF); applyPIDF(outtake2, kP, kI, kD, kF); sleep(100); }
+            if (gamepad1.dpad_left)  { kF = Math.max(0, kF - 0.0005); applyPIDF(outtake1, kP, kI, kD, kF); applyPIDF(outtake2, kP, kI, kD, kF); sleep(100); }
 
             // Command velocity
             double targetTicksPerSec = (targetRPM * TICKS_PER_OUTPUT_REV) / 60.0;
-            if (holding) outtake.setVelocity(targetTicksPerSec);
+            if (holding) outtake1.setVelocity(targetTicksPerSec);
+            if (holding) outtake2.setVelocity(targetTicksPerSec);
 
             // Telemetry + “ready to fire” gate
-            double measTicksPerSec = outtake.getVelocity();
-            double measRPM = measTicksPerSec * 60.0 / TICKS_PER_OUTPUT_REV;
-            double err = targetRPM - measRPM;
+            double measTicksPerSec1 = outtake1.getVelocity();
+            double measRPM1 = measTicksPerSec1 * 60.0 / TICKS_PER_OUTPUT_REV;
+            double err1 = targetRPM - measRPM1;
+            double measTicksPerSec2 = outtake2.getVelocity();
+            double measRPM2 = measTicksPerSec2 * 60.0 / TICKS_PER_OUTPUT_REV;
+            double err2 = targetRPM - measRPM2;
 
-            boolean inWindow = Math.abs(err) <= rpmTolerance;
+            boolean inWindow = Math.abs(err1) <= rpmTolerance;
             long now = System.currentTimeMillis();
             if (inWindow) {
                 if (readySince == 0) readySince = now;
@@ -92,9 +106,10 @@ public class PIDF_TestChatGPT extends LinearOpMode {
             telemetry.addData("kP", "%.3f", kP);
             telemetry.addData("kF", "%.5f", kF);
             telemetry.addData("Target RPM", "%.0f", targetRPM);
-            telemetry.addData("Meas RPM", "%.0f", measRPM);
-            telemetry.addData("Error", "%.0f", err);
-            telemetry.addData("READY", ready ? "YES" : "no");
+            telemetry.addData("Meas RPM1", measRPM1);
+            telemetry.addData("Error1", err1);
+            telemetry.addData("Meas RPM2", measRPM2);
+            telemetry.addData("Error2", err2);
             telemetry.update();
         }
     }
