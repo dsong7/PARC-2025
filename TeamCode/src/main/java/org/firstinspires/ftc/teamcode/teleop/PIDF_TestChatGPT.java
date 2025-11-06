@@ -21,9 +21,9 @@ public class PIDF_TestChatGPT extends LinearOpMode {
     static final double TICKS_PER_OUTPUT_REV = TICKS_PER_MOTOR_REV * GEAR_RATIO;
 
     // Targets you can toggle (short vs long shot)
-    double targetRPM = 250;         // default hold speed
-    final double closeShotRPM = 500;
-    final double longShotRPM  = 1000;
+    double targetRPM = 500;         // default hold speed
+    final double closeShotRPM = 1000;
+    final double longShotRPM  = 2000;
 
     // PIDF (we’ll compute kF from assumed max and tune kP live)
     double kP = 0.12, kI = 0.10, kD = 0.10, kF = 0.0;

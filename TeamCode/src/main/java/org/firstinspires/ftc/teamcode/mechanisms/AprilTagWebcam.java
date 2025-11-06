@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import android.util.Size;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.UtilityOctoQuadConfigMenu;
@@ -35,6 +37,43 @@ public class AprilTagWebcam {
         builder.addProcessor(aprilTagProcessor);
 
         visionPortal = builder.build();
+    }
+
+    public void update(){
+        detectedTags = aprilTagProcessor.getDetections();
+    }
+
+    public List<AprilTagDetection> getDetectedTags() {
+        return detectedTags;
+    }
+
+    public void displayDetectionTelemetry(AprilTagDetection detectedID){
+        if (detectedID == null){return;}
+
+        if (detectedID.metadata != null) {
+            telemetry.addLine(String.format("\n==== (ID %d) %s", detectedID.id, detectedID.metadata.name));
+            telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detectedID.ftcPose.x, detectedID.ftcPose.y, detectedID.ftcPose.z));
+            telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detectedID.ftcPose.pitch, detectedID.ftcPose.roll, detectedID.ftcPose.yaw));
+            telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detectedID.ftcPose.range, detectedID.ftcPose.bearing, detectedID.ftcPose.elevation));
+        } else {
+            telemetry.addLine(String.format("\n==== (ID %d) Unknown", detectedID.id));
+            telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detectedID.center.x, detectedID.center.y));
+        }
+    }
+
+    public AprilTagDetection getTagBySpecificID(int id){
+        for (AprilTagDetection detection : detectedTags){
+            if (detection.id == id){
+                return detection;
+            }
+        }
+        return null;
+    }
+
+    public void stop() {
+        if (visionPortal != null){
+            visionPortal.close();
+        }
 
     }
 }
