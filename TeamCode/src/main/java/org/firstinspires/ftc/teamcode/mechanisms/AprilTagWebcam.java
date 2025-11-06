@@ -32,7 +32,7 @@ public class AprilTagWebcam {
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam1"));
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         builder.setCameraResolution(new Size(640, 480));
         builder.addProcessor(aprilTagProcessor);
 
