@@ -21,6 +21,8 @@ public class AprilTagTest extends OpMode {
         aprilTagWebcam.update();
         AprilTagDetection id21 = aprilTagWebcam.getTagBySpecificID(21);
         aprilTagWebcam.displayDetectionTelemetry(id21);
+        // to get specific varaiables:
+
 
     }
 }

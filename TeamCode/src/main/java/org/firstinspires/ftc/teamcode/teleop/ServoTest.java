@@ -13,10 +13,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 @TeleOp(name = "Test", group = "TeleOpModes")
 public class ServoTest extends LinearOpMode {
 
-    Servo test = hardwareMap.get(Servo.class, "servo");
+    Servo test;
 
     public void runOpMode() {
-
+        test = hardwareMap.get(Servo.class, "servo");
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
