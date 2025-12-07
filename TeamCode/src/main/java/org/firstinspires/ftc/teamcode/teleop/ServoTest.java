@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
+import java.lang.Thread;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -9,19 +10,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
-@TeleOp(name = "TeleOpMode", group = "TeleOpModes")
-public class TeleOpMode extends LinearOpMode {
+@TeleOp(name = "Test", group = "TeleOpModes")
+public class ServoTest extends LinearOpMode {
 
-    Robot robot;
+    Servo test = hardwareMap.get(Servo.class, "servo");
 
     public void runOpMode() {
-        robot = new Robot(gamepad1, hardwareMap.get(DcMotor.class, "LFD"), hardwareMap.get(DcMotor.class, "LBD"), hardwareMap.get(DcMotor.class, "RFD"), hardwareMap.get(DcMotor.class, "RBD"), hardwareMap.get(DcMotor.class, "spinner"), hardwareMap.get(Servo.class, "servo"), hardwareMap.get(BNO055IMU.class, "imu"), hardwareMap);
-        telemetry.setMsTransmissionInterval(250);
 
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                robot.controllerMode();
+                test.setPosition(0);
+                try{Thread.sleep(1000);}catch(Exception e){}
+                test.setPosition(0.5);
+                try{Thread.sleep(1000);}catch(Exception e){}
             }
         }
     }
