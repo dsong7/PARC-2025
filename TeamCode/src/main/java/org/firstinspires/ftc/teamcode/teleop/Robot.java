@@ -2,22 +2,29 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class Robot {
-    //MecanumDrive drive;
-    Intake intake;
-    //Outtake outtake;
+import org.firstinspires.ftc.teamcode.mechanisms.Intake;
+import org.firstinspires.ftc.teamcode.mechanisms.Outtake;
+import org.firstinspires.ftc.teamcode.mechanisms.TelemetryMecanumDrive;
 
+public class Robot {
+    TelemetryMecanumDrive drive;
+    Intake intake;
+    Outtake outtake;
+
+    Gamepad gamepad1;
+    Gamepad gamepad2;
 
     public boolean update = false;
 
-    public Robot(Gamepad gamepad1, DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, DcMotor spinner, Servo drop, BNO055IMU imu, HardwareMap hardwareMap) {
-        //drive = new MecanumDrive(gamepad1, LFD, LBD, RFD, RBD, imu, hardwareMap);
-        intake = new Intake(gamepad1, spinner);
-        //outtake = new Outtake(gamepad1, lifts, drop);
+    public Robot(Gamepad gamepad1, BNO055IMU imu, DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, DcMotor spinner, DcMotor flywheel1, DcMotor flywheel2) {
+        drive = new TelemetryMecanumDrive(gamepad1, LFD, LBD, RFD, RBD, imu);
+        intake = new Intake(spinner);
+        outtake = new Outtake((DcMotorEx) flywheel1, (DcMotorEx) flywheel2);
     }
     public Robot(DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, DcMotor spinner, Servo drop, BNO055IMU imu, HardwareMap hardwareMap) {
         //drive = new MecanumDrive(LFD, LBD, RFD, RBD, imu, hardwareMap);
@@ -25,10 +32,28 @@ public class Robot {
         //outtake = new Outtake(lifts, drop);
     }
 
-    public void controllerMode() {
-        //drive.fieldCentricDrive();
-        intake.intakeByController();
-        //outtake.liftByController();
+    public void update() {
+        drive.fieldCentricDrive();
+        outtake.update();
+        runCommands();
     }
+
+    private void runCommands(){
+        //INTAKE
+        if(gamepad1.right_trigger > 0.5){
+            intake.forward();
+        } else if (gamepad1.left_trigger > 0.5) {
+            intake.reverse();
+        }else{
+            intake.stop();
+        }
+
+        //outtake
+        if (gamepad2.right_trigger > 0.8){
+            //launch
+            outtake.startLaunch(1600);
+        }
+    }
+
 
 }

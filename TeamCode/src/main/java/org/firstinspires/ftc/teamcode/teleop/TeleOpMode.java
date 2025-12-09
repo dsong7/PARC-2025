@@ -15,13 +15,14 @@ public class TeleOpMode extends LinearOpMode {
     Robot robot;
 
     public void runOpMode() {
-        robot = new Robot(gamepad1, hardwareMap.get(DcMotor.class, "LFD"), hardwareMap.get(DcMotor.class, "LBD"), hardwareMap.get(DcMotor.class, "RFD"), hardwareMap.get(DcMotor.class, "RBD"), hardwareMap.get(DcMotor.class, "spinner"), hardwareMap.get(Servo.class, "servo"), hardwareMap.get(BNO055IMU.class, "imu"), hardwareMap);
+        robot = new Robot(gamepad1, hardwareMap.get(BNO055IMU.class, "imu"), hardwareMap.get(DcMotor.class, "LFD"), hardwareMap.get(DcMotor.class, "LBD"), hardwareMap.get(DcMotor.class, "RFD"), hardwareMap.get(DcMotor.class, "RBD"),
+                hardwareMap.get(DcMotor.class, "intake"), hardwareMap.get(DcMotor.class, "flywheel1"), hardwareMap.get(DcMotor.class, "flywheel2"));
         telemetry.setMsTransmissionInterval(250);
 
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                robot.controllerMode();
+                robot.update();
             }
         }
     }
