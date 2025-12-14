@@ -168,7 +168,7 @@ public class Outtake {
         }
     }
 
-    public void startLaunch(double rpm){
+    public void launch(double rpm){
         setTargetRPM(rpm);
         setHolding(true);
         waiting = true;
@@ -198,4 +198,7 @@ public class Outtake {
     public double getMeasuredRPM2() {
         return ticksPerSecToRPM(flywheel2.getVelocity());
     }
+
+
+
 }

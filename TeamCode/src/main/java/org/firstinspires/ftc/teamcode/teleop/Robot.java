@@ -21,12 +21,12 @@ public class Robot {
 
     public boolean update = false;
 
-    public Robot(Gamepad gamepad1, BNO055IMU imu, DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, DcMotor spinner, DcMotor flywheel1, DcMotor flywheel2) {
+    public Robot(Gamepad gamepad1, BNO055IMU imu, DcMotorEx LFD, DcMotorEx LBD, DcMotorEx RFD, DcMotorEx RBD, DcMotorEx spinner, DcMotorEx flywheel1, DcMotorEx flywheel2) {
         drive = new TelemetryMecanumDrive(gamepad1, LFD, LBD, RFD, RBD, imu);
         intake = new Intake(spinner);
         outtake = new Outtake((DcMotorEx) flywheel1, (DcMotorEx) flywheel2);
     }
-    public Robot(DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, DcMotor spinner, Servo drop, BNO055IMU imu, HardwareMap hardwareMap) {
+    public Robot(DcMotorEx LFD, DcMotorEx LBD, DcMotorEx RFD, DcMotorEx RBD, DcMotorEx spinner, Servo drop, BNO055IMU imu) {
         //drive = new MecanumDrive(LFD, LBD, RFD, RBD, imu, hardwareMap);
         intake = new Intake(spinner);
         //outtake = new Outtake(lifts, drop);
@@ -51,7 +51,7 @@ public class Robot {
         //outtake
         if (gamepad2.right_trigger > 0.8){
             //launch
-            outtake.startLaunch(1600);
+            outtake.launch(1600);
         }
     }
 

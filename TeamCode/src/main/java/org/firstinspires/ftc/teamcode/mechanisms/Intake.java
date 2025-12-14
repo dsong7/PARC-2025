@@ -1,24 +1,65 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Intake {
 
-    public DcMotor intake;
+    public DcMotorEx motor;
 
-    public Intake(DcMotor intake) {
-        this.intake = intake;
+    public Intake(DcMotorEx motor) {
+        this.motor = motor;
     }
 
     public void forward(){
-        intake.setPower(1);
+        motor.setPower(0.8);
     }
     public void reverse(){
-        intake.setPower(-1);
+        motor.setPower(-0.8);
     }
     public void stop(){
-        intake.setPower(0);
+        motor.setPower(0);
+    }
+
+    public Action spinDown() {
+        return new Action() {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    motor.setPower(0);
+                    initialized = true;
+                }
+
+
+                packet.put("spinning", 0);
+                return true;
+            }
+        };
+    }
+
+    public Action spinUp() {
+        return new Action() {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                    motor.setPower(0.8);
+                    initialized = true;
+                }
+
+
+                packet.put("spinning", 1);
+                return true;
+            }
+        };
     }
 }
