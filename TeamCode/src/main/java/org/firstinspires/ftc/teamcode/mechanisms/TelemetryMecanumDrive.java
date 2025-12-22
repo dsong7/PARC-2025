@@ -33,16 +33,11 @@ public class TelemetryMecanumDrive {
     private double joystickAngle; //angle of joystick
     private double joystickMagnitude; //magnitude
     private double turn; //turn amount
-    private double zeroangle;
+    private float zeroangle;
 
     //IMU variables
     BNO055IMU imu;
     Orientation orientation;
-
-    //Feedback heading control
-    private double targetHeading = 0.0; // radians
-    private double kPHeading = 2.0;     // tune this
-    private double headingHoldMax = 0.5; // max auto turn power
 
     public TelemetryMecanumDrive(Gamepad gamepad1, DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, BNO055IMU imu) {
         //setting inputs
@@ -60,88 +55,60 @@ public class TelemetryMecanumDrive {
         imu.initialize(parameters);
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         zeroangle = orientation.firstAngle;
-        targetHeading = orientation.firstAngle;
 
         LFD.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RFD.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LBD.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RBD.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        RFD.setDirection(DcMotor.Direction.REVERSE);
+        LFD.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public void fieldCentricDrive() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         drive(zeroangle - orientation.firstAngle);
+
     }
 
     public void drive(double curAngle) {
-        // Update IMU orientation
-        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
-        double currentHeading = orientation.firstAngle;
-
-        // ---- Vector math (your stuff) ----
-        joystickAngle = gamepad1.left_stick_x < 0
-                ? Math.atan(gamepad1.left_stick_y / gamepad1.left_stick_x) + Math.PI
-                : Math.atan(gamepad1.left_stick_y / gamepad1.left_stick_x);
-
-        joystickAngle -= curAngle; // apply field-centric rotation
+        //Vector Math
+        joystickAngle = gamepad1.left_stick_x < 0 ? Math.atan(gamepad1.left_stick_y/gamepad1.left_stick_x) + Math.PI : Math.atan(gamepad1.left_stick_y/gamepad1.left_stick_x);
+        double intrinsicAngle = joystickAngle -= curAngle;
         joystickMagnitude = Math.sqrt(Math.pow(gamepad1.left_stick_y, 2) + Math.pow(gamepad1.left_stick_x, 2));
+        turn = gamepad1.right_stick_x;
 
-        // ---- Heading hold logic for `turn` ----
-        double manualTurn = gamepad1.right_stick_x;
-        double deadband = 0.05;
-
-        if (Math.abs(manualTurn) > deadband) {
-            // Driver is actively rotating: pass-through and update target
-            turn = manualTurn;
-            targetHeading = currentHeading;
-        } else {
-            // Heading hold: use P controller
-            double error = wrapAngle(targetHeading - currentHeading); // [-π, π]
-            double autoTurn = kPHeading * error;
-
-            // Limit how strong heading-hold can be
-            autoTurn = Range.clip(autoTurn, -headingHoldMax, headingHoldMax);
-            turn = autoTurn;
-        }
-
-        // ---- Mecanum math (your stuff) ----
+        //Mecanum math, joystick angle and magnitude --> motor power
         double powerFrontLeftBackRight = (Math.sin(joystickAngle) - Math.cos(joystickAngle)) * joystickMagnitude;
         double powerFrontRightBackLeft = (-Math.sin(joystickAngle) - Math.cos(joystickAngle)) * joystickMagnitude;
 
-        if (Double.isNaN(powerFrontLeftBackRight)) {
+        if (Double.isNaN(powerFrontLeftBackRight))
+        {
             powerFrontLeftBackRight = 0D;
         }
-        if (Double.isNaN(powerFrontRightBackLeft)) {
+        if (Double.isNaN(powerFrontRightBackLeft))
+        {
             powerFrontRightBackLeft = 0D;
         }
         if (Math.abs(gamepad1.left_stick_y) < .01 && Math.abs(gamepad1.left_stick_x) < .01) {
             powerFrontLeftBackRight = 0;
             powerFrontRightBackLeft = 0;
         }
-
-        // Re-zero field orientation if you want
-        if (gamepad1.a) {
-            zeroangle = currentHeading;
-            targetHeading = currentHeading; // keep hold aligned too
+        if (gamepad1.a)
+        {
+            zeroangle = orientation.firstAngle;
         }
 
-        // Combining power and turn
-        LFP = 0.75 * Range.clip(powerFrontLeftBackRight - turn, -1, 1);
-        RBP = 0.75 * Range.clip(-powerFrontLeftBackRight - turn, -1, 1);
-        RFP = 0.75 * Range.clip(powerFrontRightBackLeft - turn, -1, 1);
-        LBP = 0.75 * Range.clip(-powerFrontRightBackLeft - turn, -1, 1);
+        //Combining power and turn
+        LFP = 0.75*Range.clip(powerFrontLeftBackRight - turn, -1, 1);
+        RBP = 0.75*Range.clip((-powerFrontLeftBackRight - turn), -1, 1);
+        RFP = 0.75*Range.clip(powerFrontRightBackLeft - turn, -1, 1);
+        LBP = 0.75*Range.clip((-powerFrontRightBackLeft - turn), -1, 1);
 
-        // Set motor power
+        //Set motor power
         LFD.setPower(LFP);
         RFD.setPower(RFP);
         LBD.setPower(LBP);
         RBD.setPower(RBP);
-    }
-
-
-    private double wrapAngle(double angle) {
-        while (angle > Math.PI)  angle -= 2.0 * Math.PI;
-        while (angle < -Math.PI) angle += 2.0 * Math.PI;
-        return angle;
     }
 }
