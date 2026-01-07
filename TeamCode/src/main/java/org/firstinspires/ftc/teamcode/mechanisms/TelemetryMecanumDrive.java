@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -14,10 +17,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class TelemetryMecanumDrive {
 
     //driving motors
-    public DcMotor LFD; //left front
-    public DcMotor LBD; //left back
-    public DcMotor RFD; //right front
-    public DcMotor RBD; //right back
+    public DcMotorEx LFD; //left front
+    public DcMotorEx LBD; //left back
+    public DcMotorEx RFD; //right front
+    public DcMotorEx RBD; //right back
 
     //gamepad and hardware map
     public Gamepad gamepad1;
@@ -39,7 +42,7 @@ public class TelemetryMecanumDrive {
     BNO055IMU imu;
     Orientation orientation;
 
-    public TelemetryMecanumDrive(Gamepad gamepad1, DcMotor LFD, DcMotor LBD, DcMotor RFD, DcMotor RBD, BNO055IMU imu) {
+    public TelemetryMecanumDrive(Gamepad gamepad1, DcMotorEx LFD, DcMotorEx LBD, DcMotorEx RFD, DcMotorEx RBD, BNO055IMU imu) {
         //setting inputs
         this.LFD = LFD;
         this.LBD = LBD;
@@ -65,10 +68,11 @@ public class TelemetryMecanumDrive {
         LFD.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public void fieldCentricDrive() {
+    public TelemetryPacket fieldCentricDrive() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         drive(zeroangle - orientation.firstAngle);
 
+        return new TelemetryPacket();
     }
 
     public void drive(double curAngle) {
@@ -106,9 +110,9 @@ public class TelemetryMecanumDrive {
         LBP = 0.75*Range.clip((-powerFrontRightBackLeft - turn), -1, 1);
 
         //Set motor power
-        LFD.setPower(LFP);
-        RFD.setPower(RFP);
-        LBD.setPower(LBP);
-        RBD.setPower(RBP);
+        LFD.setVelocity(LFP * 1000);
+        RFD.setVelocity(RFP * 1000);
+        LBD.setVelocity(LBP * 1000);
+        RBD.setVelocity(RBP * 1000);
     }
 }

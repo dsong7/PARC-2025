@@ -52,30 +52,32 @@ public class Outtake {
      * Construct an Outtake using two named motors from the hardware map.
      * Uses default tolerance and ready time.
      */
-    public Outtake(DcMotorEx flywheel1, DcMotorEx flywheel2) {
-        this(flywheel1, flywheel2, 100, 150);
+    public Outtake(DcMotorEx flywheel1) {
+        //this(flywheel1, flywheel2, 100, 150);
+        this(flywheel1, 100, 150);
     }
 
     /**
      * Full constructor with tolerance and ready time configuration.
      */
     public Outtake(DcMotorEx flywheel1,
-                   DcMotorEx flywheel2,
+                   //DcMotorEx flywheel2,
                    double rpmTolerance,
                    int readyHoldMs) {
 
         this.rpmTolerance = rpmTolerance;
         this.readyHoldMs  = readyHoldMs;
 
+        this.flywheel1 = flywheel1;
         // Reset and configure encoders
-        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.flywheel1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.flywheel1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        flywheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        flywheel2.setDirection(REVERSE);        // reverse one side if they face opposite ways
+        //flywheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //flywheel2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //flywheel2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        //flywheel2.setDirection(REVERSE);        // reverse one side if they face opposite ways
 
         // Compute a reasonable kF from assumed max RPM (REV-style ticks/sec domain)
         double maxTicksPerSec = (ASSUMED_MAX_RPM * TICKS_PER_OUTPUT_REV) / 60.0;
@@ -88,7 +90,7 @@ public class Outtake {
     private void applyPIDF() {
         PIDFCoefficients coeffs = new PIDFCoefficients(kP, kI, kD, kF);
         flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
-        flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
+        //flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
     }
 
     // ------------------- Public API -------------------
@@ -104,7 +106,7 @@ public class Outtake {
         if (!holding) {
             // stop motors and reset ready gate
             flywheel1.setPower(0);
-            flywheel2.setPower(0);
+            //flywheel2.setPower(0);
             readySinceMs = 0;
             ready = false;
         }
@@ -138,18 +140,17 @@ public class Outtake {
         // Command velocity using FTC's built-in PIDF controller
         double targetTicksPerSec = rpmToTicksPerSec(targetRPM);
         flywheel1.setVelocity(targetTicksPerSec);
-        flywheel2.setVelocity(targetTicksPerSec);
+        //flywheel2.setVelocity(targetTicksPerSec);
 
         // Measure velocities and compute errors (for ready gate)
         double measRPM1 = ticksPerSecToRPM(flywheel1.getVelocity());
-        double measRPM2 = ticksPerSecToRPM(flywheel2.getVelocity());
+        //double measRPM2 = ticksPerSecToRPM(flywheel2.getVelocity());
 
         double err1 = targetRPM - measRPM1;
-        double err2 = targetRPM - measRPM2;
+        //double err2 = targetRPM - measRPM2;
 
         boolean inWindow =
-                Math.abs(err1) <= rpmTolerance &&
-                        Math.abs(err2) <= rpmTolerance;
+                Math.abs(err1) <= rpmTolerance;// && Math.abs(err2) <= rpmTolerance;
 
         long now = System.currentTimeMillis();
         if (inWindow) {

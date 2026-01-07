@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -21,25 +22,30 @@ public class Robot {
 
     public boolean update = false;
 
-    public Robot(Gamepad gamepad1, BNO055IMU imu, DcMotorEx LFD, DcMotorEx LBD, DcMotorEx RFD, DcMotorEx RBD, DcMotorEx spinner, DcMotorEx flywheel1, DcMotorEx flywheel2) {
-        drive = new TelemetryMecanumDrive(gamepad1, LFD, LBD, RFD, RBD, imu);
-        intake = new Intake(spinner);
-        outtake = new Outtake((DcMotorEx) flywheel1, (DcMotorEx) flywheel2);
+    public Robot(Gamepad gamepad1, Gamepad gamepad2, BNO055IMU imu, DcMotorEx LFD, DcMotorEx LBD, DcMotorEx RFD, DcMotorEx RBD, DcMotorEx spinner, DcMotorEx flywheel1, DcMotorEx flywheel2) {
+        //drive = new TelemetryMecanumDrive(gamepad1, LFD, LBD, RFD, RBD, imu);
+        //intake = new Intake(spinner);
+        outtake = new Outtake(flywheel1);
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
     }
     public Robot(DcMotorEx LFD, DcMotorEx LBD, DcMotorEx RFD, DcMotorEx RBD, DcMotorEx spinner, Servo drop, BNO055IMU imu) {
         //drive = new MecanumDrive(LFD, LBD, RFD, RBD, imu, hardwareMap);
-        intake = new Intake(spinner);
+        //intake = new Intake(spinner);
         //outtake = new Outtake(lifts, drop);
     }
 
     public void update() {
-        drive.fieldCentricDrive();
+        //TelemetryPacket packet = drive.fieldCentricDrive();
         outtake.update();
         runCommands();
+
+        //return packet;
     }
 
     private void runCommands(){
         //INTAKE
+        /*
         if(gamepad1.right_trigger > 0.5){
             intake.forward();
         } else if (gamepad1.left_trigger > 0.5) {
@@ -47,12 +53,15 @@ public class Robot {
         }else{
             intake.stop();
         }
-
+        */
         //outtake
         if (gamepad2.right_trigger > 0.8){
             //launch
-            outtake.launch(1600);
+            outtake.launch(400);
         }
+
+
+
     }
 
 
