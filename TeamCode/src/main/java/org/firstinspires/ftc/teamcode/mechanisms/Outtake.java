@@ -83,14 +83,6 @@ public class Outtake {
         double maxTicksPerSec = (ASSUMED_MAX_RPM * TICKS_PER_OUTPUT_REV) / 60.0;
         kF = 32767.0 / maxTicksPerSec;
 
-        applyPIDF();
-    }
-
-    /** Apply current kP/kI/kD/kF to both motors. Call after changing gains. */
-    private void applyPIDF() {
-        PIDFCoefficients coeffs = new PIDFCoefficients(kP, kI, kD, kF);
-        flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
-        //flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
     }
 
     // ------------------- Public API -------------------
@@ -117,20 +109,6 @@ public class Outtake {
         return holding;
     }
 
-
-    /** Optional: tweak PIDF gains at runtime (e.g., from a tuning OpMode). */
-    public void setPIDFGains(double kP, double kI, double kD, double kF) {
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
-        this.kF = kF;
-        applyPIDF();
-    }
-
-    /**
-     * Call this once per loop in your OpMode.
-     * Handles velocity command + "ready" gate.
-     */
     public void update() {
         if (!holding || targetRPM <= 0) {
             ready = false;
