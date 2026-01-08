@@ -55,11 +55,33 @@ public class Robot {
         }
         */
         //outtake
+
+        //gp2:
+        /*
+        outtake
+            right bumper: set holding speed
+            left bumper: spin it down
+            right trigger: launch = servo kicker
+        transfer:
+            a: cycle 120 deg clockwise
+            b: cycle 120 deg counterclockwise
+        intake:
+            left joystick: control the spin
+         */
+
         if (gamepad2.right_trigger > 0.8){
             //launch
-            outtake.launch(400);
+            outtake.launch();
         }
 
+        if (gamepad2.right_bumper) {
+            outtake.setTargetRPM(4000);
+            outtake.setHolding(true);
+        }
+
+        if (gamepad2.left_bumper){
+            outtake.setHolding(false);
+        }
 
 
     }

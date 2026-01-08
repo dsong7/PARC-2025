@@ -24,11 +24,6 @@ public class Outtake {
     private static final double GEAR_RATIO            = 1.0;
     private static final double TICKS_PER_OUTPUT_REV  = TICKS_PER_MOTOR_REV * GEAR_RATIO;
 
-    // PIDF parameters (start with P + F only)
-    private double kP = 0.12;
-    private double kI = 0.0;
-    private double kD = 0.0;
-    private double kF = 0.0;
 
     // Assumed max RPM of the motor at the encoder shaft
     private static final double ASSUMED_MAX_RPM = 6000.0;
@@ -46,8 +41,6 @@ public class Outtake {
     private boolean holding = false;
     private long readySinceMs = 0;
     private boolean ready = false;
-
-    private boolean waiting = false;
     /**
      * Construct an Outtake using two named motors from the hardware map.
      * Uses default tolerance and ready time.
@@ -81,19 +74,8 @@ public class Outtake {
 
         // Compute a reasonable kF from assumed max RPM (REV-style ticks/sec domain)
         double maxTicksPerSec = (ASSUMED_MAX_RPM * TICKS_PER_OUTPUT_REV) / 60.0;
-        kF = 32767.0 / maxTicksPerSec;
 
-        applyPIDF();
     }
-
-    /** Apply current kP/kI/kD/kF to both motors. Call after changing gains. */
-    private void applyPIDF() {
-        PIDFCoefficients coeffs = new PIDFCoefficients(kP, kI, kD, kF);
-        flywheel1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
-        //flywheel2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coeffs);
-    }
-
-    // ------------------- Public API -------------------
 
     /** Set target RPM (will be used next time update() runs while holding = true). */
     public void setTargetRPM(double rpm) {
@@ -116,21 +98,11 @@ public class Outtake {
     public boolean isHolding() {
         return holding;
     }
-
-
-    /** Optional: tweak PIDF gains at runtime (e.g., from a tuning OpMode). */
-    public void setPIDFGains(double kP, double kI, double kD, double kF) {
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
-        this.kF = kF;
-        applyPIDF();
+    //returns if RPM is at target RPM
+    public boolean isReady(){
+        return ready;
     }
 
-    /**
-     * Call this once per loop in your OpMode.
-     * Handles velocity command + "ready" gate.
-     */
     public void update() {
         if (!holding || targetRPM <= 0) {
             ready = false;
@@ -163,16 +135,10 @@ public class Outtake {
 
         ready = holding && readySinceMs != 0 && (now - readySinceMs) >= readyHoldMs;
 
-        if (waiting && ready) {
-            //fire//// ADD CODE HERE
-            waiting = false;
-        }
     }
 
-    public void launch(double rpm){
-        setTargetRPM(rpm);
-        setHolding(true);
-        waiting = true;
+    public void launch(){
+
     }
 
 
