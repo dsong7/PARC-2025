@@ -13,18 +13,19 @@ public class Intake {
 
     public DcMotorEx motor;
 
-    public Intake(DcMotorEx motor) {
+    Gamepad gamepad2;
+
+    public Intake(DcMotorEx motor, Gamepad gamepad2) {
         this.motor = motor;
+        this.gamepad2 = gamepad2;
     }
 
-    public void forward(){
-        motor.setPower(0.8);
-    }
-    public void reverse(){
-        motor.setPower(-0.8);
-    }
-    public void stop(){
-        motor.setPower(0);
+    public void update(){
+        if (Math.abs(gamepad2.right_stick_y)> 0.1){
+            motor.setPower(gamepad2.right_stick_y);
+        }else{
+            motor.setPower(0);
+        }
     }
 
     public Action spinDown() {

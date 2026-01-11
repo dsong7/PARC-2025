@@ -18,23 +18,17 @@ public class TeleOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        BNO055IMU imu = null;// = hardwareMap.get(BNO055IMU.class, "imu");
-        DcMotorEx lfd = null;// = null; //hardwareMap.get(DcMotorEx.class, "LFD");
-        DcMotorEx lbd = null;// hardwareMap.get(DcMotorEx.class, "LBD");
-        DcMotorEx rfd = null;// = hardwareMap.get(DcMotorEx.class, "RFD");
-        DcMotorEx rbd = null;// = hardwareMap.get(DcMotorEx.class, "RBD");
-        DcMotorEx intakeMotor = null;// = null;
-        DcMotorEx flywheel1 = null;
-        DcMotorEx flywheel2 = null;// = null;
+        BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
+        DcMotorEx lfd = hardwareMap.get(DcMotorEx.class, "LFD");
+        DcMotorEx lbd = hardwareMap.get(DcMotorEx.class, "LBD");
+        DcMotorEx rfd = hardwareMap.get(DcMotorEx.class, "RFD");
+        DcMotorEx rbd = hardwareMap.get(DcMotorEx.class, "RBD");
+        DcMotorEx intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        DcMotorEx flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        Servo servoKicker = hardwareMap.get(Servo.class, "servoKicker");
+        Servo servoTransfer = hardwareMap.get(Servo.class, "servoTransfer");
 
-        try{
-            //intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
-            flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
-            //flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
-        } catch (Exception e){
-        }
-
-        robot = new Robot(gamepad1, gamepad2, imu, lfd, lbd, rfd, rbd, intakeMotor, flywheel1, flywheel2);
+        robot = new Robot(gamepad1, gamepad2, imu, lfd, lbd, rfd, rbd, intakeMotor, flywheel1, servoKicker, servoTransfer);
         telemetry.setMsTransmissionInterval(250);
 
         waitForStart();
