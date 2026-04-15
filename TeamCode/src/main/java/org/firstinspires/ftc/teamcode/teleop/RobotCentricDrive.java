@@ -18,7 +18,7 @@ import  com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.ArrayList;
 import java.util.List;
-@TeleOp(name = "Main Teleop ", group = "Teleop")
+@TeleOp(name = "Robot Centric Drive ", group = "Teleop")
 public class RobotCentricDrive extends LinearOpMode {
 
     private GamepadEx gp1;
@@ -28,11 +28,23 @@ public class RobotCentricDrive extends LinearOpMode {
     public void runOpMode() throws InterruptedException{
         gp1 = new GamepadEx(gamepad1);
         waitForStart();
+        fl = new MotorEx(this.hardwareMap, "LFD",Motor.GoBILDA.RPM_312);
+        fr = new MotorEx(this.hardwareMap, "RFD", Motor.GoBILDA.RPM_312);
+        bl = new MotorEx(this.hardwareMap, "LBD", Motor.GoBILDA.RPM_312);
+        br = new MotorEx(this.hardwareMap, "RBD", Motor.GoBILDA.RPM_312);
+        fr.setInverted(true);
+        br.setInverted(true);
+        fl.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        fr.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        bl.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+        br.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
+
+        fl.setRunMode(Motor.RunMode.RawPower);
+        fr.setRunMode(Motor.RunMode.RawPower);
+        bl.setRunMode(Motor.RunMode.RawPower);
+        br.setRunMode(Motor.RunMode.RawPower);
         while (opModeIsActive()) {
-            fl = new MotorEx(this.hardwareMap, "LFD",Motor.GoBILDA.RPM_312);
-            fr = new MotorEx(this.hardwareMap, "RFD", Motor.GoBILDA.RPM_312);
-            bl = new MotorEx(this.hardwareMap, "LBD", Motor.GoBILDA.RPM_312);
-            br = new MotorEx(this.hardwareMap, "RBD", Motor.GoBILDA.RPM_312);
+
             drive();
         }
 
@@ -55,31 +67,17 @@ public class RobotCentricDrive extends LinearOpMode {
         }
         fl.set(speeds[0]);
         fr.set(speeds[1]);
-        bl.set(-speeds[2]);
-        br.set(-speeds[3]);
+        bl.set(speeds[2]);
+        br.set(speeds[3]);
     }
     public void drive() {
         gp1.readButtons();
-        fl.setInverted(true);
-        bl.setInverted(true);
-        fl.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        fr.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        bl.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
-        br.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
 
-        fl.setRunMode(Motor.RunMode.RawPower);
-        fr.setRunMode(Motor.RunMode.RawPower);
-        bl.setRunMode(Motor.RunMode.RawPower);
-        br.setRunMode(Motor.RunMode.RawPower);
-        double x = Math.max(Math.max(Math.abs(gp1.getLeftX()), Math.abs(gp1.getLeftY())), Math.abs(gp1.getRightX()));
+        //double x = Math.max(Math.max(Math.abs(gp1.getLeftX()), Math.abs(gp1.getLeftY())), Math.abs(gp1.getRightX()));
         //driveSpeed = 0.0121*Math.pow(2.7182818284,4.48*x)-0.0121;
         //driveSpeed = Math.max(0, driveSpeed);
         Vector2d driveVector = new Vector2d(-gp1.getLeftX(), gp1.getLeftY()),
-                turnVector = new Vector2d(gp1
-                        .getRightX(), 0);
-        driveRobotCentric(driveVector.getX() /* driveSpeed*/,
-                driveVector.getY() /* driveSpeed*/,
-                turnVector.getX() /* driveSpeed*/
-        );
+                turnVector = new Vector2d(gp1.getRightX(), 0);
+        driveRobotCentric(driveVector.getX() /* driveSpeed*/, driveVector.getY() /* driveSpeed*/, turnVector.getX() /* driveSpeed*/);
     }
 }
