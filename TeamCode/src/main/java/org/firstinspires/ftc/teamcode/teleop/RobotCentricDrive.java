@@ -53,8 +53,8 @@ public class RobotCentricDrive extends LinearOpMode {
         double[] speeds = {
                 (forwardBackSpeed - strafeSpeed + turnSpeed),
                 (forwardBackSpeed + strafeSpeed - turnSpeed),
-                (-forwardBackSpeed - strafeSpeed - turnSpeed),
-                (-forwardBackSpeed + strafeSpeed + turnSpeed)
+                (forwardBackSpeed - strafeSpeed - turnSpeed),
+                (forwardBackSpeed + strafeSpeed + turnSpeed)
         };
         double maxSpeed = 0;
         for (int i = 0; i < 4; i++) {
