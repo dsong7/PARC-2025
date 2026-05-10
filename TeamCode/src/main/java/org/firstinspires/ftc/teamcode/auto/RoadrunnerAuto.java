@@ -27,7 +27,6 @@ public class RoadrunnerAuto extends LinearOpMode {
         Actions.runBlocking(
                 drive.actionBuilder(beginPose)
                         .splineToLinearHeading(new Pose2d(-64, 9,Math.toRadians(0)),Math.toRadians(0), drive.defaultVelConstraint, new ProfileAccelConstraint(-52,92))
-
                         .splineToLinearHeading(beginPose,Math.toRadians(0), drive.defaultVelConstraint, new ProfileAccelConstraint(-52,92))
                         .build());
 
